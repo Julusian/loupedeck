@@ -1,3 +1,4 @@
+import { NodeCanvasRenderingContext2D } from "canvas";
 import { EventEmitter } from "events";
 
 /**
@@ -6,7 +7,7 @@ import { EventEmitter } from "events";
  * @param width Width of drawing area
  * @param height Height of drawing area
  */
-export type DrawCanvasCallback = (ctx: any, width: number, height: number) => void
+export type DrawCanvasCallback = (ctx: NodeCanvasRenderingContext2D, width: number, height: number) => void
 
 export type LoupedeckScreen = 'left' | 'center' | 'right'
 export type LoupedeckButtonId = 'circle' | 1 | 2 | 3 | 4 | 5 | 6 | 7
@@ -116,6 +117,23 @@ export class LoupedeckDevice extends EventEmitter {
         autoRefresh?: boolean = true
     }, cb: DrawCanvasCallback): Promise<void>
 
+    async drawBuffer(options: {
+        /** Screen to write to */
+        id: LoupedeckScreen
+        /** Width of area to draw */
+        width?: number
+        /** Height of area to draw */
+        height?: number
+        /** Starting X offset */
+        x?: number = 0
+        /** Starting Y offset */
+        y?: number = 0
+        /** RGB Pixel buffer */
+        buffer: Buffer
+        /** Whether to refresh the screen after drawing */
+        autoRefresh?: boolean = true
+    }): Promise<void>
+
     /**
      * Draw graphics to a specific key. Width and height of callback will be `90`, as keys are 90x90px
      * @param index Key index to write to [0-11]
@@ -129,6 +147,10 @@ export class LoupedeckDevice extends EventEmitter {
      * @param cb Function to handle draw calls
      */
     drawScreen(id: LoupedeckScreen, cb: DrawCanvasCallback): Promise<void>
+
+    drawKeyBuffer(index: number, buffer: Buffer): Promise<void>
+
+    drawScreenBuffer(id: LoupedeckScreen, buffer: Buffer): Promise<void>
 
     /**
      * Request device information
@@ -169,3 +191,20 @@ export class LoupedeckDevice extends EventEmitter {
      */
     vibrate(pattern: unknown): void
 }
+
+export interface SerialDeviceInfo {
+    type: 'serial'
+    path: string
+    vendorId?: string
+    productId?: string
+    serialNumber?: string
+}
+export interface WebsocketDeviceInfo {
+    type: 'ws'
+    host: string
+}
+
+export function listDevices(options?: {
+    ignoreSerial?: boolean
+    ignoreWebsocket?: boolean
+}): Promise<Array<SerialDeviceInfo | WebsocketDeviceInfo>>

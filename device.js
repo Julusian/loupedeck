@@ -101,6 +101,39 @@ class LoupedeckDevice extends EventEmitter {
         // Draw to display
         if (autoRefresh) await this.refresh(id)
     }
+    // Create a canvas with correct dimensions and pass back for drawing
+    async drawBuffer({ id, width, height, x = 0, y = 0, buffer, autoRefresh = true }) {
+        const displayInfo = DISPLAYS[id]
+        if (!width) width = displayInfo.width
+        if (!height) height = displayInfo.height
+
+        const pixelCount = width * height
+        if (buffer.length !== pixelCount * 3) {
+            throw new Error(`Incorrect buffer length ${buffer.length} expected ${pixelCount * 3}`)
+        }
+
+        const converted = Buffer.alloc(pixelCount * 2)
+        for (let i = 0; i < pixelCount; i++) {
+            const r = buffer.readUInt8(i * 3 + 0) >> 3
+            const g = buffer.readUInt8(i * 3 + 1) >> 2
+            const b = buffer.readUInt8(i * 3 + 2) >> 3
+
+            converted.writeUint16LE((r << 11) + (g << 5) + b, i * 2)
+        }
+
+        // Header with x/y/w/h and display ID
+        const header = Buffer.alloc(8)
+        header.writeUInt16BE(x, 0)
+        header.writeUInt16BE(y, 2)
+        header.writeUInt16BE(width, 4)
+        header.writeUInt16BE(height, 6)
+
+        // Write to frame buffer
+        await this.send(HEADERS.WRITE_FRAMEBUFF, Buffer.concat([displayInfo.id, header, converted]), { track: true })
+
+        // Draw to display
+        if (autoRefresh) await this.refresh(id)
+    }
     // Draw to a specific key index (0-12)
     drawKey(index, cb) {
         // Get offset x/y for key index
@@ -113,6 +146,19 @@ class LoupedeckDevice extends EventEmitter {
     // Draw to a specific screen
     drawScreen(id, cb) {
         return this.drawCanvas({ id }, cb)
+    }
+    // Draw to a specific key index (0-12)
+    drawKeyBuffer(index, buffer) {
+        // Get offset x/y for key index
+        const width = 90
+        const height = 90
+        const x = index % 4 * width
+        const y = Math.floor(index / 4) * height
+        return this.drawBuffer({ id: 'center', x, y, width, height, buffer })
+    }
+    // Draw to a specific screen
+    drawScreenBuffer(id, buffer) {
+        return this.drawBuffer({ id, buffer })
     }
     async getInfo() {
         const [serial, version] = await Promise.all([
