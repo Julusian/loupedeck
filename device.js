@@ -105,10 +105,11 @@ class LoupedeckDevice extends EventEmitter {
         return this.drawCanvas({ id }, cb)
     }
     async getInfo() {
-        return {
-            serial: await this.send(HEADERS.SERIAL_OUT, undefined, { track: true }),
-            version: await this.send(HEADERS.VERSION_OUT, undefined, { track: true })
-        }
+        const [serial, version] = await Promise.all([
+            this.send(HEADERS.SERIAL_OUT, undefined, { track: true }),
+            this.send(HEADERS.VERSION_OUT, undefined, { track: true }),
+        ])
+        return { serial, version }
     }
     onButton(buff) {
         const id = BUTTONS[buff[0]]
