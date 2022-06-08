@@ -100,23 +100,7 @@ export class LoupedeckDevice extends EventEmitter {
     /**
      * Draw graphics to a particular area. Lower-level method if `drawKey()` or `drawScreen()` don't meet your needs.
      * @param options Drawing options
-     * @param cb Function to handle draw calls
      */
-    drawCanvas(options: {
-        /** Screen to write to */
-        id: LoupedeckScreen
-        /** Width of area to draw */
-        width?: number
-        /** Height of area to draw */
-        height?: number
-        /** Starting X offset */
-        x?: number = 0
-        /** Starting Y offset */
-        y?: number = 0
-        /** Whether to refresh the screen after drawing */
-        autoRefresh?: boolean = true
-    }, cb: DrawCanvasCallback): Promise<void>
-
     async drawBuffer(options: {
         /** Screen to write to */
         id: LoupedeckScreen
@@ -137,19 +121,15 @@ export class LoupedeckDevice extends EventEmitter {
     /**
      * Draw graphics to a specific key. Width and height of callback will be `90`, as keys are 90x90px
      * @param index Key index to write to [0-11]
-     * @param cb Function to handle draw calls
+     * @param buffer Pixel buffer to draw
      */
-    drawKey(index: number, cb: DrawCanvasCallback): Promise<void>
+    drawKeyBuffer(index: number, buffer: Buffer): Promise<void>
 
     /**
      * Draw graphics to a specific screen
      * @param id Screen to write to
-     * @param cb Function to handle draw calls
+     * @param buffer Pixel buffer to draw
      */
-    drawScreen(id: LoupedeckScreen, cb: DrawCanvasCallback): Promise<void>
-
-    drawKeyBuffer(index: number, buffer: Buffer): Promise<void>
-
     drawScreenBuffer(id: LoupedeckScreen, buffer: Buffer): Promise<void>
 
     /**

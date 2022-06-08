@@ -1,5 +1,5 @@
 const EventEmitter = require('events')
-const { createCanvas } = require('canvas')
+// const { createCanvas } = require('canvas')
 const rgba = require('color-rgba')
 
 const {
@@ -78,29 +78,29 @@ class LoupedeckDevice extends EventEmitter {
         this.connection.connect()
         return connectionPromise
     }
-    // Create a canvas with correct dimensions and pass back for drawing
-    async drawCanvas({ id, width, height, x = 0, y = 0, autoRefresh = true }, cb) {
-        const displayInfo = DISPLAYS[id]
-        if (!width) width = displayInfo.width
-        if (!height) height = displayInfo.height
+    // // Create a canvas with correct dimensions and pass back for drawing
+    // async drawCanvas({ id, width, height, x = 0, y = 0, autoRefresh = true }, cb) {
+    //     const displayInfo = DISPLAYS[id]
+    //     if (!width) width = displayInfo.width
+    //     if (!height) height = displayInfo.height
 
-        const canvas = createCanvas(width, height)
-        const ctx = canvas.getContext('2d', { pixelFormat: 'RGB16_565' }) // Loupedeck uses 16-bit (5-6-5) LE RGB colors
-        cb(ctx, width, height)
+    //     const canvas = createCanvas(width, height)
+    //     const ctx = canvas.getContext('2d', { pixelFormat: 'RGB16_565' }) // Loupedeck uses 16-bit (5-6-5) LE RGB colors
+    //     cb(ctx, width, height)
 
-        // Header with x/y/w/h and display ID
-        const header = Buffer.alloc(8)
-        header.writeUInt16BE(x, 0)
-        header.writeUInt16BE(y, 2)
-        header.writeUInt16BE(width, 4)
-        header.writeUInt16BE(height, 6)
+    //     // Header with x/y/w/h and display ID
+    //     const header = Buffer.alloc(8)
+    //     header.writeUInt16BE(x, 0)
+    //     header.writeUInt16BE(y, 2)
+    //     header.writeUInt16BE(width, 4)
+    //     header.writeUInt16BE(height, 6)
 
-        // Write to frame buffer
-        await this.send(HEADERS.WRITE_FRAMEBUFF, Buffer.concat([displayInfo.id, header, canvas.toBuffer('raw')]), { track: true })
+    //     // Write to frame buffer
+    //     await this.send(HEADERS.WRITE_FRAMEBUFF, Buffer.concat([displayInfo.id, header, canvas.toBuffer('raw')]), { track: true })
 
-        // Draw to display
-        if (autoRefresh) await this.refresh(id)
-    }
+    //     // Draw to display
+    //     if (autoRefresh) await this.refresh(id)
+    // }
     // Create a canvas with correct dimensions and pass back for drawing
     async drawBuffer({ id, width, height, x = 0, y = 0, buffer, autoRefresh = true }) {
         const displayInfo = DISPLAYS[id]
@@ -134,19 +134,19 @@ class LoupedeckDevice extends EventEmitter {
         // Draw to display
         if (autoRefresh) await this.refresh(id)
     }
-    // Draw to a specific key index (0-12)
-    drawKey(index, cb) {
-        // Get offset x/y for key index
-        const width = 90
-        const height = 90
-        const x = index % 4 * width
-        const y = Math.floor(index / 4) * height
-        return this.drawCanvas({ id: 'center', x, y, width, height }, cb)
-    }
-    // Draw to a specific screen
-    drawScreen(id, cb) {
-        return this.drawCanvas({ id }, cb)
-    }
+    // // Draw to a specific key index (0-12)
+    // drawKey(index, cb) {
+    //     // Get offset x/y for key index
+    //     const width = 90
+    //     const height = 90
+    //     const x = index % 4 * width
+    //     const y = Math.floor(index / 4) * height
+    //     return this.drawCanvas({ id: 'center', x, y, width, height }, cb)
+    // }
+    // // Draw to a specific screen
+    // drawScreen(id, cb) {
+    //     return this.drawCanvas({ id }, cb)
+    // }
     // Draw to a specific key index (0-12)
     drawKeyBuffer(index, buffer) {
         // Get offset x/y for key index
