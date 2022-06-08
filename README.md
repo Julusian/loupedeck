@@ -95,6 +95,10 @@ Most use-cases should omit the `host`/`path` parameter, unless you're using mult
 
 Emitted when connection to the device succeeds.
 
+#### Event: `'disconnect'`
+
+Emitted when connection to the device disconnects.
+
 #### Event: `'down'`
 
 Emitted when a button or knob is pressed down.
@@ -194,6 +198,13 @@ Request device information. Returns:
 
  - `serial`: Device serial number
  - `version`: Firmware version
+
+
+#### `device.refresh()`
+
+Refresh the screen
+
+ - `id`: Screen to refresh [`left`, `center`, `right`]
 
 #### `device.setBrightness(brightness : Number)`
 
